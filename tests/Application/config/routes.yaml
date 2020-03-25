@@ -1,0 +1,7 @@
+mango_sylius_shipment_export_plugin:
+    resource: "@MangoSyliusShipmentExportPlugin/Resources/config/routing.yml"
+    prefix: /admin
+
+sylius_ppl_parcelshops_plugin:
+    resource: '@MangoSyliusPplParcelshopsPlugin/Resources/config/routing.yml'
+    prefix: /
