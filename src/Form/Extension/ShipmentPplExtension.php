@@ -14,11 +14,10 @@ use Sylius\Component\Shipping\Resolver\ShippingMethodsResolverInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ShipmentPplExtension extends AbstractTypeExtension
 {
@@ -31,12 +30,17 @@ class ShipmentPplExtension extends AbstractTypeExtension
 	/** @var string[]; */
 	private $pplMethodsCodes = [];
 
+	/** @var TranslatorInterface */
+	private $translator;
+
 	public function __construct(
 		ShippingMethodsResolverInterface $shippingMethodsResolver,
-		ShippingMethodRepositoryInterface $shippingMethodRepository
+		ShippingMethodRepositoryInterface $shippingMethodRepository,
+		TranslatorInterface $translator
 	) {
 		$this->shippingMethodsResolver = $shippingMethodsResolver;
 		$this->shippingMethodRepository = $shippingMethodRepository;
+		$this->translator = $translator;
 	}
 
 	/** @param array<mixed> $options */
@@ -66,6 +70,12 @@ class ShipmentPplExtension extends AbstractTypeExtension
 				}
 
 				$event->setData($orderData);
+
+				// validation
+				$data = $event->getData();
+				if (array_key_exists('pplKTMID_' . $data['method'], $data) && !((bool) $orderData['pplKTMID_' . $orderData['method']])) {
+					$event->getForm()->addError(new FormError($this->translator->trans('mangoweb.shop.checkout.pplBranch', [], 'validators')));
+				}
 			})
 			->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
 				$form = $event->getForm();
@@ -105,12 +115,6 @@ class ShipmentPplExtension extends AbstractTypeExtension
 								'data' => $shipment->getPplKTMID(),
 								'required' => false,
 								'mapped' => false,
-								'constraints' => [
-									new NotBlank([
-										'groups' => ['ppl_parcelshops_' . $method->getCode()],
-										'message' => 'mangoweb.shop.checkout.pplBranch',
-									]),
-								],
 							])
 							->add('pplKTMname_' . $method->getCode(), HiddenType::class, [
 								'required' => false,
@@ -126,35 +130,6 @@ class ShipmentPplExtension extends AbstractTypeExtension
 				}
 			})
 		;
-	}
-
-	public function configureOptions(OptionsResolver $resolver): void
-	{
-		parent::configureOptions($resolver);
-
-		$validationGroups = $resolver->resolve()['validation_groups'];
-
-		$resolver->setDefaults([
-			'validation_groups' => function (FormInterface $form) use ($validationGroups) {
-				$entity = $form->getData();
-				assert($entity instanceof ShipmentInterface);
-
-				$shippingMethod = $entity->getMethod();
-
-				if ($shippingMethod !== null) {
-					assert($shippingMethod instanceof PplShippingMethodInterface);
-					if ($shippingMethod->getPplParcelshopsShippingMethod()) {
-						if (is_array($validationGroups)) {
-							$validationGroups = array_merge($validationGroups ?? [], ['ppl_parcelshops_' . $shippingMethod->getCode()]);
-						} else {
-							return ['ppl_parcelshops_' . $shippingMethod->getCode()];
-						}
-					}
-				}
-
-				return $validationGroups;
-			},
-		]);
 	}
 
 	/** @return array<int, string> */

@@ -55,8 +55,6 @@ final class PplController
 
 	public function pplReturn(Request $request, string $methodCode, string $redirectTo = 'sylius_shop_checkout_select_shipping'): RedirectResponse
 	{
-//		/{_locale}/ppl/return-from-ppl/ppl_parcel_shop?sessid=52&KTMID=10110800&KTMaddress=Po%C4%8Dernick%C3%A1%2081%2C%20Praha%20108%2010800&KTMname=Cukrárna%20vinárna
-
 		$order = $this->cartContext->getCart();
 		assert($order instanceof OrderInterface);
 
