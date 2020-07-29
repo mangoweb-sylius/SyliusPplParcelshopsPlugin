@@ -23,9 +23,9 @@ trait PplShipmentTrait
 	private $pplKTMaddress;
 
 	/**
-	 * @var int|null
+	 * @var string|null
 	 *
-	 * @ORM\Column(type="integer", nullable=true)
+	 * @ORM\Column(type="string", nullable=true)
 	 */
 	private $pplKTMID;
 
@@ -49,12 +49,12 @@ trait PplShipmentTrait
 		$this->pplKTMaddress = $pplKTMaddress;
 	}
 
-	public function getPplKTMID(): ?int
+	public function getPplKTMID(): ?string
 	{
 		return $this->pplKTMID;
 	}
 
-	public function setPplKTMID(?int $pplKTMID): void
+	public function setPplKTMID(?string $pplKTMID): void
 	{
 		$this->pplKTMID = $pplKTMID;
 	}
