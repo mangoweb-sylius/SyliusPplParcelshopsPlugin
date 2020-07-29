@@ -14,7 +14,7 @@ interface PplShipmentInterface
 
 	public function setPplKTMaddress(?string $pplKTMaddress): void;
 
-	public function getPplKTMID(): ?int;
+	public function getPplKTMID(): ?string;
 
-	public function setPplKTMID(?int $pplKTMID): void;
+	public function setPplKTMID(?string $pplKTMID): void;
 }

@@ -75,7 +75,7 @@ final class PplController
 		$ktmAddress = $request->query->get('KTMaddress');
 		$ktmName = $request->query->get('KTMname');
 
-		$shipment->setPplKTMID((int) $ktmId);
+		$shipment->setPplKTMID($ktmId);
 		$shipment->setPplKTMaddress($ktmAddress);
 		$shipment->setPplKTMname($ktmName);
 		$shipment->setMethod($shippingMethod);
